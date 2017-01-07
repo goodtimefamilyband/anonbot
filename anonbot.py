@@ -3,13 +3,32 @@
 import discord
 import asyncio
 import re
+import configparser
+
+import os
+if not os.path.exists('anonbot.ini'):
+    print("Generating default config...")
+    config = configparser.ConfigParser()
+    config['default'] = {'server': 'Server Name Here', 'bottoken': 'Bot Token Here'}
+    with open('anonbot.ini', 'w') as configfile:
+        config.write(configfile)
+        
+    print("Config file anonbot.ini generated. Please edit it to add appropriate values.")
+    
+    import sys
+    sys.exit()
+
+config = configparser.ConfigParser()
+config.read('anonbot.ini')
+token = config['default']['bottoken']
+server_name = config['default']['server']    
 
 def get_phrase_prefixes(name):
     na = name.split(' ')
     for i in range(len(na), 0, -1):
         yield ' '.join(na[0:i])
 
-server_name = 'bored@butler'
+#server_name = 'bored@butler'
 
 mentions_regex = '@[\w #()]*'
 mentions_re = re.compile(mentions_regex)
@@ -107,4 +126,4 @@ async def on_message(message):
         await client.send_message(message.channel, "Your message has been sent to #{}.".format(cname))
         print("anonbot is done")
 
-client.run('MjY2NzcxNjQ1NjM5ODE5MjY0.C1CidQ.EMJjjoKDF-MUmTRapnaCr7TevXw')
+client.run(token)
