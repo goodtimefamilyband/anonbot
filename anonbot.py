@@ -42,21 +42,26 @@ server = None
 
 @client.event
 async def on_ready():
+    print('Logged in as')    
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
+
     global server
-    print('Logged in as')
     for s in client.servers:
         print("Connected to", s.name)
 
-    
     server = discord.utils.find(lambda s: s.name == server_name, client.servers)
     if server is None:
         print("WARNING: not connected to", server_name)
+        print("Please visit https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions=0 to authorize this bot".format(client.user.id))
     else:
         print("*** Anonbot for {} ***".format(server.name))
         print("Available channels:")
         for channel in server.channels:
             print(channel.name)
             
+        print("Server members:")
         for member in server.members:
             try:
                 print(member.name)
@@ -64,12 +69,7 @@ async def on_ready():
                 print("WeirdName")
         
         print("Default channel is {}".format(server.default_channel.name))
-        print(server.members)
         print("------")
-        
-    print(client.user.name)
-    print(client.user.id)
-    print('------')
 
 @client.event
 async def on_message(message):
