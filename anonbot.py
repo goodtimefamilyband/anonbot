@@ -11,7 +11,7 @@ def get_phrase_prefixes(name):
 
 server_name = 'bored@butler'
 
-mentions_regex = '@[\w #]*'
+mentions_regex = '@[\w #()]*'
 mentions_re = re.compile(mentions_regex)
 
 client = discord.Client()
