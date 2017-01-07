@@ -4,22 +4,26 @@ import discord
 import asyncio
 import re
 import configparser
+import sys
+
+configname = 'anonbot.ini'
+if len(sys.argv) > 1:
+    configname = sys.argv[1]
 
 import os
-if not os.path.exists('anonbot.ini'):
+if not os.path.exists(configname):
     print("Generating default config...")
     config = configparser.ConfigParser()
     config['default'] = {'server': 'Server Name Here', 'bottoken': 'Bot Token Here'}
-    with open('anonbot.ini', 'w') as configfile:
+    with open(configname, 'w') as configfile:
         config.write(configfile)
         
-    print("Config file anonbot.ini generated. Please edit it to add appropriate values.")
+    print("Config file {} generated. Please edit it to add appropriate values before use.".format(configname))
     
-    import sys
     sys.exit()
 
 config = configparser.ConfigParser()
-config.read('anonbot.ini')
+config.read(configname)
 token = config['default']['bottoken']
 server_name = config['default']['server']    
 
