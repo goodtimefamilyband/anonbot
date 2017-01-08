@@ -80,6 +80,26 @@ async def on_message(message):
         cname = channel.name
         content = message.content
         
+        content_arr = content.split(' ')
+        
+        if message.content.lstrip(' ').startswith('#'):
+            
+            if len(content_arr) == 0:
+                return
+            
+            cname = content_arr[0].lstrip('#')
+            channel = discord.utils.find(lambda c: c.name == cname, server.channels)
+            if channel is None:
+                await client.send_message(message.channel, "Don't know channel {} in {}.".format(cname, server_name))
+                return
+        
+            content = ' '.join(content_arr[1:])
+        else:
+            content = ' '.join(content_arr)
+            
+        if not channel.permissions_for(message.author).send_messages:
+            await client.send_message(message.channel, "You're not currently allowed to send messages to {}...".format(channel.name))
+        
         match = mentions_re.search(message.content)
         startpos = 0
         while match is not None:
@@ -100,23 +120,6 @@ async def on_message(message):
         print(content)
         print("Embeds", message.embeds)
         print("Attachments", message.attachments)
-        
-        content_arr = content.split(' ')
-        
-        if message.content.lstrip(' ').startswith('#'):
-            
-            if len(content_arr) == 0:
-                return
-            
-            cname = content_arr[0].lstrip('#')
-            channel = discord.utils.find(lambda c: c.name == cname, server.channels)
-            if channel is None:
-                await client.send_message(message.channel, "Don't know channel {} in {}.".format(cname, server_name))
-                return
-        
-            content = ' '.join(content_arr[1:])
-        else:
-            content = ' '.join(content_arr)
         
         e = None
         if len(message.attachments) != 0:
