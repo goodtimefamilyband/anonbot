@@ -98,19 +98,11 @@ async def on_message(message):
             match = mentions_re.search(message.content[startpos:])
                 
         print(content)
+        print("Embeds", message.embeds)
+        print("Attachments", message.attachments)
         
-       
         content_arr = content.split(' ')
         
-        '''
-        for i in range(len(content_arr)):
-            if mentions_re.match(content_arr[i]) is not None:
-                mention = content_arr[i][1:]
-                member = discord.utils.find(lambda m: m.name == mention or m.nick == mention, server.members)
-                
-                if member is not None:
-                    content_arr[i] = member.mention
-        '''
         if message.content.lstrip(' ').startswith('#'):
             
             if len(content_arr) == 0:
@@ -125,8 +117,14 @@ async def on_message(message):
             content = ' '.join(content_arr[1:])
         else:
             content = ' '.join(content_arr)
+        
+        e = None
+        if len(message.attachments) != 0:
+            e = discord.Embed()
+            e.set_image(url=message.attachments[0]['url'])
             
-        await client.send_message(channel, content)
+        anonmsg = await client.send_message(channel, content, embed=e)
+        
         await client.send_message(message.channel, "Your message has been sent to #{}.".format(cname))
         print("anonbot is done")
 
