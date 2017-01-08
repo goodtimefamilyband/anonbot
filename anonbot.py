@@ -119,8 +119,8 @@ async def on_message(message):
             match = mentions_re.search(message.content[startpos:])
                 
         print(content)
-        print("Embeds", message.embeds)
-        print("Attachments", message.attachments)
+        #print("Embeds", message.embeds)
+        #print("Attachments", message.attachments)
         
         e = None
         if len(message.attachments) != 0:
