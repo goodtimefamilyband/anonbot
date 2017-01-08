@@ -55,6 +55,7 @@ async def on_ready():
     if server is None:
         print("WARNING: not connected to", server_name)
         print("Please visit https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions=0 to authorize this bot".format(client.user.id))
+        sys.exit()
     else:
         print("*** Anonbot for {} ***".format(server.name))
         print("Available channels:")
