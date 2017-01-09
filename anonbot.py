@@ -98,8 +98,10 @@ async def on_message(message):
         else:
             content = ' '.join(content_arr)
             
-        if not channel.permissions_for(message.author).send_messages:
+        amember = discord.utils.find(lambda m: m.id == message.author.id, server.members)
+        if amember is None or not channel.permissions_for(amember).send_messages:
             await client.send_message(message.channel, "You're not currently allowed to send messages to {}...".format(channel.name))
+            return
         
         match = mentions_re.search(message.content)
         startpos = 0
