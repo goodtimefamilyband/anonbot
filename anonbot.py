@@ -34,7 +34,7 @@ def get_phrase_prefixes(name):
 
 #server_name = 'bored@butler'
 
-mentions_regex = '@[\w #()]*'
+mentions_regex = '@[\w ()]*(#[0-9]{4})?'
 mentions_re = re.compile(mentions_regex)
 
 client = discord.Client()
@@ -109,9 +109,12 @@ async def on_message(message):
             mention_str = content[match.start() + startpos + 1:match.end()]
             member = None
             for name in get_phrase_prefixes(mention_str):
+                real_name = name
+                if '#' in name:
+                    name = name.split('#')[0]
                 member = discord.utils.find(lambda m: m.name == name or m.nick == name, server.members)
                 if member is not None:
-                    content = content[:startpos + match.start()] + member.mention + content[startpos + match.start() + len(name) + 1:]
+                    content = content[:startpos + match.start()] + member.mention + content[startpos + match.start() + len(real_name) + 1:]
                     startpos += match.start() + len(member.mention)
                     break
             
@@ -119,8 +122,11 @@ async def on_message(message):
                 startpos += match.end()
             
             match = mentions_re.search(message.content[startpos:])
-                
-        print(content)
+        
+        try:
+            print(content)
+        except UnicodeEncodeError:
+            print("(Unprintable content)")
         #print("Embeds", message.embeds)
         #print("Attachments", message.attachments)
         
