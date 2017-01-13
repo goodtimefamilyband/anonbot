@@ -22,10 +22,10 @@ if not os.path.exists(configname):
     
     sys.exit()
 
-config = configparser.ConfigParser()
-config.read(configname)
-token = config['default']['bottoken']
-server_name = config['default']['server']    
+config_ini = configparser.ConfigParser()
+config_ini.read(configname)
+token = config_ini['default']['bottoken']
+server_name = config_ini['default']['server']
 
 def get_phrase_prefixes(name):
     na = name.split(' ')
@@ -39,6 +39,7 @@ mentions_re = re.compile(mentions_regex)
 
 client = discord.Client()
 server = None
+config = None
 
 @client.event
 async def on_ready():
@@ -48,6 +49,8 @@ async def on_ready():
     print('------')
 
     global server
+    global config_ini
+    global config
     for s in client.servers:
         print("Connected to", s.name)
 
@@ -57,6 +60,7 @@ async def on_ready():
         print("Please visit https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions=0 to authorize this bot".format(client.user.id))
         sys.exit()
     else:
+        
         print("*** Anonbot for {} ***".format(server.name))
         print("Available channels:")
         for channel in server.channels:
@@ -68,16 +72,42 @@ async def on_ready():
                 print(member.name)
             except UnicodeEncodeError:
                 print("WeirdName")
+                
+        print("Processing configuration...")
+        config = {'noperm_channels':[], 'default_channel': server.default_channel}
+        for k,v in config_ini['default'].items():
+            if k.endswith('channel'):
+                chan = discord.utils.find(lambda c: c.name == v, server.channels)
+                if chan is not None:
+                    config[k] = chan
+                
+                del config_ini['default'][k]
+                    
+            elif k.endswith('channels'):
+                chans = []
+                for cname in v.split(','):
+                    cname = cname.strip()
+                    chan = discord.utils.find(lambda c: c.name == cname, server.channels)
+                    if chan is not None:
+                        print("{} registered as a noperms channel".format(chan.name))
+                        chans.append(chan)
+                
+                config[k] = chans
+                del config_ini['default'][k]
+                
+        config.update(config_ini['default'])
         
-        print("Default channel is {}".format(server.default_channel.name))
+        print("Default channel is {}".format(config['default_channel'].name))
+        print("Current config", config)
         print("------")
 
 @client.event
 async def on_message(message):
     global server
+    global config
     if message.channel.is_private and message.author.id != client.user.id:
         print("anonbot is handling a message...")
-        channel = server.default_channel
+        channel = config['default_channel']
         cname = channel.name
         content = message.content
         
@@ -98,10 +128,11 @@ async def on_message(message):
         else:
             content = ' '.join(content_arr)
             
-        amember = discord.utils.find(lambda m: m.id == message.author.id, server.members)
-        if amember is None or not channel.permissions_for(amember).send_messages:
-            await client.send_message(message.channel, "You're not currently allowed to send messages to {}...".format(channel.name))
-            return
+        if channel not in config['noperm_channels']:
+            amember = discord.utils.find(lambda m: m.id == message.author.id, server.members)
+            if amember is None or not channel.permissions_for(amember).send_messages:
+                await client.send_message(message.channel, "You're not currently allowed to send messages to {}...".format(channel.name))
+                return
         
         match = mentions_re.search(message.content)
         startpos = 0
