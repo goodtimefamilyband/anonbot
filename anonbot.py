@@ -134,7 +134,7 @@ async def on_message(message):
                 await client.send_message(message.channel, "You're not currently allowed to send messages to {}...".format(channel.name))
                 return
         
-        match = mentions_re.search(message.content)
+        match = mentions_re.search(content)
         startpos = 0
         while match is not None:
             mention_str = content[match.start() + startpos + 1:match.end()]
