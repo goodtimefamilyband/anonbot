@@ -73,7 +73,9 @@ async def on_ready():
             except UnicodeEncodeError:
                 print("WeirdName")
                 
+        
         print("Processing configuration...")
+        print('parsed config:', config_ini['default'])
         config = {'noperm_channels':[], 'default_channel': server.default_channel}
         for k,v in config_ini['default'].items():
             if k.endswith('channel'):
