@@ -5,6 +5,8 @@ import asyncio
 import re
 import configparser
 import sys
+from aiohttp.errors import ClientOSError
+import time
 
 configname = 'anonbot.ini'
 if len(sys.argv) > 1:
@@ -37,6 +39,8 @@ def get_phrase_prefixes(name):
 mentions_regex = '@[\w ()]*(#[0-9]{4})?'
 mentions_re = re.compile(mentions_regex)
 
+client = None
+print(client)
 client = discord.Client()
 server = None
 config = None
@@ -50,6 +54,7 @@ async def on_ready():
 
     global server
     global config_ini
+    global configname
     global config
     for s in client.servers:
         print("Connected to", s.name)
@@ -75,6 +80,9 @@ async def on_ready():
                 
         
         print("Processing configuration...")
+        
+        config_ini.read(configname)
+        
         print('parsed config:', config_ini['default'])
         config = {'noperm_channels':[], 'default_channel': server.default_channel}
         for k,v in config_ini['default'].items():
