@@ -1,6 +1,10 @@
 #anonbot
+# by handsandwich
 
 import discord
+from discord.http import Route
+from datetime import datetime
+import time
 import asyncio
 import re
 import configparser
@@ -77,8 +81,9 @@ async def on_ready():
                 print(member.name)
             except UnicodeEncodeError:
                 print("WeirdName")
-                
-        
+                    
+                    
+        #print(await client.http.request(Route('GET', '/users/@me/channels')))
         print("Processing configuration...")
         
         config_ini.read(configname)
@@ -110,6 +115,9 @@ async def on_ready():
         print("Default channel is {}".format(config['default_channel'].name))
         print("Current config", config)
         print("------")
+        
+        for message in client.messages:
+            print(message.content)
 
 @client.event
 async def on_message(message):
@@ -176,7 +184,11 @@ async def on_message(message):
             e = discord.Embed()
             e.set_image(url=message.attachments[0]['url'])
             
-        anonmsg = await client.send_message(channel, content, embed=e)
+        try:
+            anonmsg = await client.send_message(channel, content, embed=e)
+        except discord.errors.Forbidden:
+            await client.send_message(message.channel, "I can't send messages to #{}.".format(cname))
+            return
         
         await client.send_message(message.channel, "Your message has been sent to #{}.".format(cname))
         print("anonbot is done")
