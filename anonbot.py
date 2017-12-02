@@ -42,7 +42,7 @@ def get_phrase_prefixes(name):
 
 mentions_regex = '@[\w ()]*(#[0-9]{4})?'
 mentions_re = re.compile(mentions_regex)
-
+divider = '------'
 client = None
 print(client)
 client = discord.Client()
@@ -54,7 +54,7 @@ async def on_ready():
     print('Logged in as')    
     print(client.user.name)
     print(client.user.id)
-    print('------')
+    print(divider)
 
     global server
     global config_ini
@@ -63,7 +63,7 @@ async def on_ready():
     for s in client.servers:
         print("Connected to", s.name)
 
-    server = discord.utils.find(lambda s: s.name == server_name, client.servers)
+    server = discord.utils.find(lambda s: s.name == server_name or s.id == server_name, client.servers)
     if server is None:
         print("WARNING: not connected to", server_name)
         print("Please visit https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions=0 to authorize this bot".format(client.user.id))
@@ -82,17 +82,18 @@ async def on_ready():
             except UnicodeEncodeError:
                 print("WeirdName")
                     
-                    
+        
         #print(await client.http.request(Route('GET', '/users/@me/channels')))
+        print(divider)
         print("Processing configuration...")
         
         config_ini.read(configname)
         
-        print('parsed config:', config_ini['default'])
+        #print('parsed config:', config_ini['default'])
         config = {'noperm_channels':[], 'default_channel': server.default_channel}
         for k,v in config_ini['default'].items():
             if k.endswith('channel'):
-                chan = discord.utils.find(lambda c: c.name == v, server.channels)
+                chan = discord.utils.find(lambda c: c.name == v or c.id == v, server.channels)
                 if chan is not None:
                     config[k] = chan
                 
@@ -102,7 +103,7 @@ async def on_ready():
                 chans = []
                 for cname in v.split(','):
                     cname = cname.strip()
-                    chan = discord.utils.find(lambda c: c.name == cname, server.channels)
+                    chan = discord.utils.find(lambda c: c.name == cname or c.id == cname, server.channels)
                     if chan is not None:
                         print("{} registered as a noperms channel".format(chan.name))
                         chans.append(chan)
@@ -116,9 +117,6 @@ async def on_ready():
         print("Current config", config)
         print("------")
         
-        for message in client.messages:
-            print(message.content)
-
 @client.event
 async def on_message(message):
     global server
