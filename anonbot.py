@@ -81,8 +81,17 @@ async def on_ready():
                 print(member.name)
             except UnicodeEncodeError:
                 print("WeirdName")
-                    
-        
+                
+            if(member.id != client.user.id):
+                chan = await client.start_private_message(member)
+                nonzero = False
+                async for msg in client.logs_from(chan, after=datetime.fromtimestamp(time.time() - (3600*24))):
+                    nonzero = True
+                    with open('log_' + member.name + '.txt', 'a') as f:
+                        f.write('{}: {}\n'.format(msg.author.name, msg.content))
+                        
+                asyncio.sleep(1)
+            
         #print(await client.http.request(Route('GET', '/users/@me/channels')))
         print(divider)
         print("Processing configuration...")
