@@ -87,7 +87,7 @@ async def on_ready():
                 nonzero = False
                 async for msg in client.logs_from(chan, after=datetime.fromtimestamp(time.time() - (3600*24))):
                     nonzero = True
-                    with open('log_' + member.name + '.txt', 'a') as f:
+                    with open('log_' + member.name.replace("\\", "_").replace("/", "_") + '.txt', 'a') as f:
                         f.write('{}: {}\n'.format(bytes(msg.author.name, "utf-8"), bytes(msg.content, "utf-8")))
                         
                 asyncio.sleep(1)
